@@ -41,9 +41,9 @@ class Progressive:
             ],
         )
         return cls(
-            paused=payload["paused"],
-            percentage=payload["percentage"],
-            current_percentage=payload["current-percentage"],
+            paused=payload.get("paused", False),
+            percentage=payload.get("percentage", 100),
+            current_percentage=payload.get("current-percentage", 100),
         )
 
     def marshal(self) -> Dict[str, Any]:
@@ -298,7 +298,7 @@ class ChannelMap:
         return cls(
             channel_map=[MappedChannel.unmarshal(c) for c in payload["channel-map"]],
             revisions=[Revision.unmarshal(r) for r in payload["revisions"]],
-            snap=Snap.unmarshal(payload["snap"]),
+            # snap=Snap.unmarshal(payload["snap"]),
         )
 
     def marshal(self) -> Dict[str, Any]:
@@ -306,7 +306,7 @@ class ChannelMap:
         return {
             "channel-map": [c.marshal() for c in self.channel_map],
             "revisions": [r.marshal() for r in self.revisions],
-            "snap": self.snap.marshal(),
+            # "snap": self.snap.marshal(),
         }
 
     def __repr__(self) -> str:
@@ -314,7 +314,11 @@ class ChannelMap:
         return f"<{self.__class__.__name__}: {self.snap.name!r}>"
 
     def __init__(
-        self, *, channel_map: List[MappedChannel], revisions: List[Revision], snap: Snap
+        self,
+        *,
+        channel_map: List[MappedChannel],
+        revisions: List[Revision],
+        snap: Optional[Snap] = None,
     ) -> None:
         self.channel_map = channel_map
         self.revisions = revisions
@@ -390,7 +394,7 @@ CHANNEL_MAP_JSONSCHEMA: Dict[str, Any] = {
                             "percentage": {"type": ["number", "null"]},
                             "current-percentage": {"type": ["number", "null"]},
                         },
-                        "required": ["paused", "percentage", "current-percentage"],
+                        # "required": ["paused", "percentage", "current-percentage"],
                         "type": "object",
                     },
                     "revision": {"type": "integer"},
@@ -403,7 +407,7 @@ CHANNEL_MAP_JSONSCHEMA: Dict[str, Any] = {
                     "architecture",
                     "channel",
                     "expiration-date",
-                    "progressive",
+                    # "progressive",
                     "revision",
                     # "when"
                 ],
@@ -544,6 +548,6 @@ CHANNEL_MAP_JSONSCHEMA: Dict[str, Any] = {
             "type": "object",
         },
     },
-    "required": ["channel-map", "revisions", "snap"],
+    "required": ["channel-map", "revisions"],  # "snap"],
     "type": "object",
 }

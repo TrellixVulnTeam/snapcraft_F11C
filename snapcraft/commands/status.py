@@ -19,7 +19,8 @@ import itertools
 import operator
 import textwrap
 from collections import OrderedDict
-from typing import TYPE_CHECKING, List, Optional, Sequence, Tuple, cast
+from io import StringIO
+from typing import List, Optional, Sequence, TYPE_CHECKING, Tuple, cast
 
 from craft_cli import BaseCommand, emit
 from overrides import overrides
@@ -108,13 +109,21 @@ class StoreStatusCommand(BaseCommand):
             if not tracks:
                 return
 
-        emit.message(
-            get_tabulated_channel_map(
+        try:
+            status = get_tabulated_channel_map(
                 snap_channel_map,
                 architectures=list(architectures),
                 tracks=tracks,
             )
-        )
+        except AttributeError:
+            from pprint import pprint
+
+            message_io = StringIO()
+            pprint(snap_channel_map.marshal(), stream=message_io)
+            message_io.seek(0)
+            status = message_io.read()
+
+        emit.message(status)
 
 
 class _HINTS:
